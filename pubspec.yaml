@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  provider: ^6.1.1       # Untuk State Management (ViewModel)
+  http: ^1.2.0           # Untuk komunikasi dengan API PHP
+  shared_preferences: ^2.2.2  # Untuk fitur "Ingat Saya" (menyimpan token)
 
 dev_dependencies:
   flutter_test:
