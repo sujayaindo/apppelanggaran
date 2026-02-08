@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_model/auth_provider.dart';
 import '../view_model/halaman_utama_provider.dart';
-import '../model/user_model.dart'; // Pastikan impor model ada di sini
+import '../model/user_model.dart';
+import 'halaman_input_pelanggaran.dart';
 
 class HalamanUtama extends StatefulWidget {
   const HalamanUtama({super.key});
@@ -53,68 +54,77 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 700),
-            child: RefreshIndicator(
-              onRefresh: () {
-                final token = context.read<AuthProvider>().user?.token ?? "";
-                return context.read<HalamanUtamaProvider>().ambilStatistik(token);
-              },
-              child: Column(
-                children: [
-                  _buildHeader(user), // Memanggil fungsi header
-                  Expanded(
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              children: [
+                // 1. HEADER (FIXED - Termasuk Role & Setting)
+                _buildHeader(user), 
+                
+                // 2. LAYANAN & TOMBOL (FIXED)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Layanan SIMPEL",
+                        style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
                         children: [
-                          const Text(
-                            "Layanan SIMPEL",
-                            style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.w600),
+                          Expanded(
+                            child: _buildGridButton(
+                              title: "Input Pelanggaran",
+                              icon: Icons.add_moderator_rounded,
+                              color: Colors.indigo.shade900,
+                              isActive: canInput,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const HalamanInputPelanggaran()),
+                                );
+                              },
+                            ),
                           ),
-                          const SizedBox(height: 16),
-                          
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildGridButton(
-                                  title: "Input",
-                                  icon: Icons.add_moderator_rounded,
-                                  color: Colors.indigo.shade900,
-                                  isActive: canInput,
-                                  onTap: () {
-                                    // Navigasi ke Halaman Input
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: _buildGridButton(
-                                  title: "Catatan",
-                                  icon: Icons.assignment_rounded,
-                                  color: Colors.blue.shade700,
-                                  isActive: true,
-                                  onTap: () {
-                                    // Navigasi ke Halaman Riwayat
-                                  },
-                                ),
-                              ),
-                            ],
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildGridButton(
+                              title: "Catatan Pelanggaran",
+                              icon: Icons.assignment_rounded,
+                              color: Colors.blue.shade700,
+                              isActive: true,
+                              onTap: () {
+                                // Navigasi Riwayat
+                              },
+                            ),
                           ),
-                          
-                          const SizedBox(height: 40),
-                          const Text(
-                            "Tren Pelanggaran Hari Ini",
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildStatistikList(homeWatch),
                         ],
                       ),
+                      const SizedBox(height: 40),
+                      const Text(
+                        "Tren Pelanggaran Hari Ini",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+
+                // 3. AREA SCROLL KHUSUS STATISTIK
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () {
+                      final token = context.read<AuthProvider>().user?.token ?? "";
+                      return context.read<HalamanUtamaProvider>().ambilStatistik(token);
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                      child: _buildStatistikList(homeWatch),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -122,7 +132,8 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     );
   }
 
-  // Header: Menggunakan UserModel? dan withValues
+  // --- KOMPONEN UI YANG DIKEMBALIKAN KE ASLINYA ---
+
   Widget _buildHeader(UserModel? user) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -134,7 +145,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.indigo.withValues(alpha: 0.3), // Pengganti withOpacity
+            color: Colors.indigo.withValues(alpha: 0.3), 
             blurRadius: 15, 
             offset: const Offset(0, 8)
           ),
@@ -156,10 +167,11 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 12),
+                // ROLE USER YANG DIKEMBALIKAN
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15), // Pengganti withOpacity
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10)
                   ),
                   child: Text(
@@ -172,6 +184,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
           ),
           Row(
             children: [
+              // TOMBOL SETTING YANG DIKEMBALIKAN
               _buildHeaderIcon(Icons.settings_outlined, () {}),
               const SizedBox(width: 10),
               _buildHeaderIcon(
@@ -205,7 +218,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
             borderRadius: BorderRadius.circular(22),
             boxShadow: isActive ? [
               BoxShadow(
-                color: color.withValues(alpha: 0.3), // Pengganti withOpacity
+                color: color.withValues(alpha: 0.3), 
                 blurRadius: 12, 
                 offset: const Offset(0, 6)
               )
@@ -237,7 +250,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
         decoration: BoxDecoration(
           color: isDanger 
               ? Colors.red.withValues(alpha: 0.2) 
-              : Colors.white.withValues(alpha: 0.1), // Pengganti withOpacity
+              : Colors.white.withValues(alpha: 0.1), 
           borderRadius: BorderRadius.circular(15),
         ),
         child: Icon(icon, color: isDanger ? Colors.redAccent.shade100 : Colors.white, size: 22),
@@ -267,28 +280,50 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
         ),
       );
     }
-    return ListView.builder(
+    return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: provider.statistikJenis.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 2.8, 
+      ),
       itemBuilder: (context, index) {
         final item = provider.statistikJenis[index];
         final List<Color> labelColors = [Colors.indigo, Colors.orange, Colors.red, Colors.teal];
         final Color themeColor = labelColors[index % labelColors.length];
         return Container(
-          margin: const EdgeInsets.only(bottom: 14),
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: Colors.white, 
-            borderRadius: BorderRadius.circular(18), 
-            border: Border.all(color: Colors.grey.shade200)
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.grey.shade200),
           ),
           child: Row(
             children: [
-              Container(width: 5, height: 35, decoration: BoxDecoration(color: themeColor, borderRadius: BorderRadius.circular(10))),
-              const SizedBox(width: 18),
-              Expanded(child: Text(item['jenis'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
-              Text("${item['jumlah']}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: themeColor)),
+              Container(width: 4, height: 20, decoration: BoxDecoration(color: themeColor, borderRadius: BorderRadius.circular(10))),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['jenis'], 
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "${item['jumlah']} Kasus",
+                      style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         );

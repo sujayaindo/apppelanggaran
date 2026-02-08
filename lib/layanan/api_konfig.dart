@@ -7,4 +7,9 @@ class ApiKonfig {
   static const String cekSesi = "$baseUrl/autentikasi/cek_sesi.php";
   static const String logout = "$baseUrl/autentikasi/keluar.php";
   static const String statistikPelanggaran = "$baseUrl/pelanggaran/statistik_pelanggaran.php";
+  static const String cariSiswa = "$baseUrl/pelanggaran/cari_siswa.php";
+  static const String masterPelanggaran = "$baseUrl/pelanggaran/ambil_master_pelanggaran.php";
+  static const String simpanPelanggaran = "$baseUrl/pelanggaran/simpan_pelanggaran.php";
+  static const String riwayatHariIni = "$baseUrl/pelanggaran/ambil_input_hari_ini.php";
+  static const String hapusPelanggaran = "$baseUrl/pelanggaran/hapus_pelanggaran.php";
 }

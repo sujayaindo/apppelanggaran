@@ -14,6 +14,10 @@ class ApiServis {
         body: data,
       ).timeout(const Duration(seconds: 10));
 
+      // TAMPILKAN DI CONSOLE UNTUK DEBUG
+      //print("URL: $url");
+      //print("Body Respon: ${respon.body}");
+
       if (respon.statusCode == 200) {
         final dataRespon = json.decode(respon.body);
 
@@ -29,6 +33,7 @@ class ApiServis {
         return {"status": "error", "pesan": "Server bermasalah (Code: ${respon.statusCode})"};
       }
     } catch (e) {
+      //print("DETAIL ERROR: $e");
       return {"status": "error", "pesan": "Gagal terhubung ke server"};
     }
   }

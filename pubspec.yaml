@@ -12,6 +12,7 @@ dependencies:
   provider: ^6.1.1       # Untuk State Management (ViewModel)
   http: ^1.2.0           # Untuk komunikasi dengan API PHP
   shared_preferences: ^2.2.2  # Untuk fitur "Ingat Saya" (menyimpan token)
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:

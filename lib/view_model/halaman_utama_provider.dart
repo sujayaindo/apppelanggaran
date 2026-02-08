@@ -13,6 +13,7 @@ class HalamanUtamaProvider with ChangeNotifier {
   final ApiServis _apiServis = ApiServis();
 
   Future<void> ambilStatistik(String token) async {
+
     _loadingStatistik = true;
     notifyListeners();
 
