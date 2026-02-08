@@ -50,16 +50,17 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 700),
-            child: Column(
+        child: OrientationBuilder(
+          builder: (context, orientation) {
+            bool isLandscape = orientation == Orientation.landscape;
+
+            // Konten Utama Aplikasi
+            Widget mainContent = Column(
               children: [
-                // 1. HEADER (FIXED - Termasuk Role & Setting)
+                // 1. HEADER
                 _buildHeader(user), 
                 
-                // 2. LAYANAN & TOMBOL (FIXED)
+                // 2. LAYANAN & TOMBOL MENU
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                   child: Column(
@@ -94,13 +95,13 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                               color: Colors.blue.shade700,
                               isActive: true,
                               onTap: () {
-                                // Navigasi Riwayat
+                                // Navigasi Riwayat Lengkap
                               },
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 32),
                       const Text(
                         "Tren Pelanggaran Hari Ini",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -110,30 +111,39 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                   ),
                 ),
 
-                // 3. AREA SCROLL KHUSUS STATISTIK
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: () {
-                      final token = context.read<AuthProvider>().user?.token ?? "";
-                      return context.read<HalamanUtamaProvider>().ambilStatistik(token);
-                    },
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                      child: _buildStatistikList(homeWatch),
+                // 3. AREA STATISTIK
+                if (isLandscape)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: _buildStatistikList(homeWatch),
+                  )
+                else
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () {
+                        final token = context.read<AuthProvider>().user?.token ?? "";
+                        return context.read<HalamanUtamaProvider>().ambilStatistik(token);
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                        child: _buildStatistikList(homeWatch),
+                      ),
                     ),
                   ),
-                ),
               ],
-            ),
-          ),
+            );
+
+            return isLandscape 
+                ? SingleChildScrollView(child: mainContent) 
+                : mainContent;
+          },
         ),
       ),
     );
   }
 
-  // --- KOMPONEN UI YANG DIKEMBALIKAN KE ASLINYA ---
-
+  // --- KOMPONEN HEADER ---
   Widget _buildHeader(UserModel? user) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -145,6 +155,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
         ),
         boxShadow: [
           BoxShadow(
+            // PERBAIKAN: withOpacity -> withValues
             color: Colors.indigo.withValues(alpha: 0.3), 
             blurRadius: 15, 
             offset: const Offset(0, 8)
@@ -167,10 +178,10 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 12),
-                // ROLE USER YANG DIKEMBALIKAN
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
+                    // PERBAIKAN: withOpacity -> withValues
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10)
                   ),
@@ -184,7 +195,6 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
           ),
           Row(
             children: [
-              // TOMBOL SETTING YANG DIKEMBALIKAN
               _buildHeaderIcon(Icons.settings_outlined, () {}),
               const SizedBox(width: 10),
               _buildHeaderIcon(
@@ -199,6 +209,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     );
   }
 
+  // --- KOMPONEN TOMBOL GRID ---
   Widget _buildGridButton({
     required String title,
     required IconData icon,
@@ -218,6 +229,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
             borderRadius: BorderRadius.circular(22),
             boxShadow: isActive ? [
               BoxShadow(
+                // PERBAIKAN: withOpacity -> withValues
                 color: color.withValues(alpha: 0.3), 
                 blurRadius: 12, 
                 offset: const Offset(0, 6)
@@ -241,6 +253,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     );
   }
 
+  // --- KOMPONEN IKON HEADER ---
   Widget _buildHeaderIcon(IconData icon, VoidCallback onTap, {bool isDanger = false}) {
     return InkWell(
       onTap: onTap,
@@ -249,6 +262,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isDanger 
+              // PERBAIKAN: withOpacity -> withValues
               ? Colors.red.withValues(alpha: 0.2) 
               : Colors.white.withValues(alpha: 0.1), 
           borderRadius: BorderRadius.circular(15),
@@ -258,6 +272,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     );
   }
 
+  // --- KOMPONEN LIST STATISTIK ---
   Widget _buildStatistikList(HalamanUtamaProvider provider) {
     if (provider.loadingStatistik) {
       return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));

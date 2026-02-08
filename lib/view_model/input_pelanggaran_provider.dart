@@ -51,8 +51,9 @@ class InputPelanggaranProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void pilihSiswa(Map<String, dynamic> siswa) {
+  void pilihSiswa(Map<String, dynamic>? siswa) {
     _siswaTerpilih = siswa;
+    _daftarSiswa = [];
     notifyListeners();
   }
 
@@ -175,7 +176,7 @@ class InputPelanggaranProvider with ChangeNotifier {
       }
       return false;
     } catch (e) {
-      debugPrint("Error simpanPelanggaran: $e");
+      //debugPrint("Error simpanPelanggaran: $e");
       return false;
     } finally {
       _isSaving = false;
@@ -183,13 +184,30 @@ class InputPelanggaranProvider with ChangeNotifier {
     }
   }
 
-  Future<void> hapusPelanggaran(String token, String id) async {
-    final hasil = await _apiServis.kirimPermintaan(ApiKonfig.hapusPelanggaran, {
-      'token': token,
-      'id': id
-    });
-    if (hasil['status'] == 'sukses') {
-      ambilRiwayatHariIni(token);
+  Future<bool> hapusPelanggaran(String token, String id) async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApiKonfig.hapusPelanggaran),
+        body: {"token": token, "id": id},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status'] == 'sukses') {
+          ambilRiwayatHariIni(token); // Refresh list internal
+          return true; // WAJIB ada return true
+        }
+      }
+      return false; // WAJIB ada return false jika gagal
+    } catch (e) {
+      //print("Error hapus: $e");
+      return false; 
     }
+  }
+
+  void hapusFoto() {
+    _fotoBukti = null;
+    _webImage = null; // Reset untuk pratinjau web
+    notifyListeners();
   }
 }
