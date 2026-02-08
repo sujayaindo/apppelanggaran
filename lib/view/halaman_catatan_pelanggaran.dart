@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/catatan_pelanggaran_provider.dart';
 import '../provider/auth_provider.dart';
+import 'halaman_detail_pelanggaran.dart';
 
 class HalamanCatatanPelanggaran extends StatefulWidget {
   const HalamanCatatanPelanggaran({super.key});
@@ -139,6 +140,37 @@ class _HalamanCatatanPelanggaranState extends State<HalamanCatatanPelanggaran> {
                                 horizontal: 16, vertical: 6),
                             elevation: 2,
                             child: ListTile(
+                              onTap: () {
+                                // Cari id siswa dari beberapa kemungkinan field
+                                dynamic siswaIdRaw = data['siswa_id'] ?? data['siswa_kelas_id'] ?? data['id'] ?? data['siswa'] ?? data['nis'];
+                                if (siswaIdRaw == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                    content: Text('ID siswa tidak tersedia — perbarui API untuk menyertakan siswa_id'),
+                                  ));
+                                  return;
+                                }
+
+                                int? siswaId;
+                                try {
+                                  siswaId = int.tryParse(siswaIdRaw.toString());
+                                } catch (_) {
+                                  siswaId = null;
+                                }
+
+                                if (siswaId == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                    content: Text('ID siswa invalid'),
+                                  ));
+                                  return;
+                                }
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => HalamanDetailPelanggaran(siswaId: siswaId ?? 0, namaSiswa: data['nama_siswa']),
+                                  ),
+                                );
+                              },
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 8),
                               leading: CircleAvatar(

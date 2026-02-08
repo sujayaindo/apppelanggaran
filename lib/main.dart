@@ -5,6 +5,7 @@ import 'provider/auth_provider.dart';
 import 'provider/halaman_utama_provider.dart';
 import 'provider/input_pelanggaran_provider.dart';
 import 'provider/catatan_pelanggaran_provider.dart';
+import 'provider/detail_pelanggaran_provider.dart';
 
 import 'view/halaman_login.dart';
 import 'view/halaman_utama.dart';
@@ -19,6 +20,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => HalamanUtamaProvider()),
         ChangeNotifierProvider(create: (_) => InputPelanggaranProvider()),
         ChangeNotifierProvider(create: (_) => CatatanPelanggaranProvider()),
+        ChangeNotifierProvider(create: (_) => DetailPelanggaranProvider()),
       ],
       child: const AppSekolah(),
     ),
