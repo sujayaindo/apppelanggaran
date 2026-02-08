@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'view_model/auth_provider.dart';
-import 'view_model/halaman_utama_provider.dart';
-import 'view_model/input_pelanggaran_provider.dart';
+import 'provider/auth_provider.dart';
+import 'provider/halaman_utama_provider.dart';
+import 'provider/input_pelanggaran_provider.dart';
+import 'provider/catatan_pelanggaran_provider.dart';
 
 import 'view/halaman_login.dart';
 import 'view/halaman_utama.dart';
@@ -17,6 +18,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => HalamanUtamaProvider()),
         ChangeNotifierProvider(create: (_) => InputPelanggaranProvider()),
+        ChangeNotifierProvider(create: (_) => CatatanPelanggaranProvider()),
       ],
       child: const AppSekolah(),
     ),

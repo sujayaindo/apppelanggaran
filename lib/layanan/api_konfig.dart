@@ -12,4 +12,5 @@ class ApiKonfig {
   static const String simpanPelanggaran = "$baseUrl/pelanggaran/simpan_pelanggaran.php";
   static const String riwayatHariIni = "$baseUrl/pelanggaran/ambil_input_hari_ini.php";
   static const String hapusPelanggaran = "$baseUrl/pelanggaran/hapus_pelanggaran.php";
+  static const String catatanPelanggaran = "$baseUrl/pelanggaran/ambil_riwayat_pelanggaran.php";
 }

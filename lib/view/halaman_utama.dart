@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../view_model/auth_provider.dart';
-import '../view_model/halaman_utama_provider.dart';
+import '../provider/auth_provider.dart';
+import '../provider/halaman_utama_provider.dart';
 import '../model/user_model.dart';
 import 'halaman_input_pelanggaran.dart';
+import 'halaman_catatan_pelanggaran.dart';
 
 class HalamanUtama extends StatefulWidget {
   const HalamanUtama({super.key});
@@ -96,6 +97,10 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                               isActive: true,
                               onTap: () {
                                 // Navigasi Riwayat Lengkap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const HalamanCatatanPelanggaran()),
+                                );
                               },
                             ),
                           ),

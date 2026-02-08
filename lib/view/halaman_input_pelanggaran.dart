@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../view_model/auth_provider.dart';
-import '../view_model/input_pelanggaran_provider.dart';
-import '../view_model/halaman_utama_provider.dart';
+import '../provider/auth_provider.dart';
+import '../provider/input_pelanggaran_provider.dart';
+import '../provider/halaman_utama_provider.dart';
 
 class HalamanInputPelanggaran extends StatefulWidget {
   const HalamanInputPelanggaran({super.key});
@@ -40,7 +40,6 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
     final auth = context.watch<AuthProvider>();
     final prov = context.watch<InputPelanggaranProvider>();
     final token = auth.user?.token ?? "";
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: DefaultTabController(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../view_model/auth_provider.dart';
+import '../provider/auth_provider.dart';
 
 class HalamanLogin extends StatefulWidget {
   const HalamanLogin({super.key});
