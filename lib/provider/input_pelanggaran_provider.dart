@@ -117,6 +117,11 @@ class InputPelanggaranProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearFilter() {
+    _filterQuery = '';
+    notifyListeners();
+  }
+
   Future<void> cariSiswa(String token, String keyword) async {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
@@ -210,6 +215,7 @@ class InputPelanggaranProvider with ChangeNotifier {
         _fotoBukti = null;
         _webImage = null; // Reset pratinjau foto
         _fotoBuktiBytes = null;
+        _filterQuery = '';
         ambilRiwayatHariIni(token);
         return true;
       }
