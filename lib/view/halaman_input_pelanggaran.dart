@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,38 @@ class HalamanInputPelanggaran extends StatefulWidget {
 
 class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
   final TextEditingController _searchSiswaController = TextEditingController();
+
+  Future<void> _showErrorDialog(String message, String? detail) async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Gagal menyimpan'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(message),
+              if (detail != null && detail.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                const Text('Detail:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                SelectableText(detail, style: const TextStyle(fontSize: 12)),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Tutup'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -273,6 +306,12 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                   context.read<HalamanUtamaProvider>().ambilStatistik(token);
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data berhasil disimpan!")));
                   _searchSiswaController.clear();
+                } else {
+                  final message = prov.lastErrorMessage ?? 'Gagal menyimpan data.';
+                  final detail = prov.lastErrorDetail == null
+                      ? null
+                      : const JsonEncoder.withIndent('  ').convert(prov.lastErrorDetail);
+                  await _showErrorDialog(message, detail);
                 }
               },
               child: prov.isSaving 

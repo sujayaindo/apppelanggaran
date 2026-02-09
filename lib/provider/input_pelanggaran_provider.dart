@@ -25,6 +25,8 @@ class InputPelanggaranProvider with ChangeNotifier {
   XFile? _fotoBukti;
   Uint8List? _webImage; // Menyimpan bytes foto untuk Web
   Uint8List? _fotoBuktiBytes; // Bytes foto terkompres untuk upload
+  String? _lastErrorMessage;
+  Map<String, dynamic>? _lastErrorDetail;
 
   bool _loadingMaster = false;
   bool _loadingRiwayat = false;
@@ -49,6 +51,8 @@ class InputPelanggaranProvider with ChangeNotifier {
   Map<String, dynamic>? get siswaTerpilih => _siswaTerpilih;
   XFile? get fotoBukti => _fotoBukti;
   Uint8List? get webImage => _webImage; // Digunakan di UI (Image.memory)
+  String? get lastErrorMessage => _lastErrorMessage;
+  Map<String, dynamic>? get lastErrorDetail => _lastErrorDetail;
 
   bool get loadingMaster => _loadingMaster;
   bool get loadingRiwayat => _loadingRiwayat;
@@ -167,8 +171,14 @@ class InputPelanggaranProvider with ChangeNotifier {
   }
 
   Future<bool> simpanPelanggaran(String token) async {
-    if (_siswaTerpilih == null || _selectedPelanggaran.isEmpty) return false;
+    if (_siswaTerpilih == null || _selectedPelanggaran.isEmpty) {
+      _lastErrorMessage = 'Pilih siswa dan pelanggaran terlebih dahulu.';
+      _lastErrorDetail = null;
+      return false;
+    }
 
+    _lastErrorMessage = null;
+    _lastErrorDetail = null;
     _isSaving = true;
     notifyListeners();
 
@@ -207,6 +217,12 @@ class InputPelanggaranProvider with ChangeNotifier {
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
+      if (response.statusCode != 200) {
+        _lastErrorMessage = 'Gagal menghubungi server (${response.statusCode}).';
+        _lastErrorDetail = {'response_body': response.body};
+        return false;
+      }
+
       final hasil = json.decode(response.body);
 
       if (hasil['status'] == 'sukses') {
@@ -219,9 +235,15 @@ class InputPelanggaranProvider with ChangeNotifier {
         ambilRiwayatHariIni(token);
         return true;
       }
+
+      _lastErrorMessage = (hasil['pesan'] ?? 'Gagal menyimpan data.').toString();
+      _lastErrorDetail = hasil['detail'] is Map
+          ? Map<String, dynamic>.from(hasil['detail'])
+          : {'detail': hasil['detail']};
       return false;
     } catch (e) {
-      //debugPrint("Error simpanPelanggaran: $e");
+      _lastErrorMessage = 'Terjadi kesalahan saat menyimpan.';
+      _lastErrorDetail = {'error': e.toString()};
       return false;
     } finally {
       _isSaving = false;
