@@ -15,4 +15,5 @@ class ApiKonfig {
   static const String hapusPelanggaran = "$baseUrl/pelanggaran/hapus_pelanggaran.php";
   static const String catatanPelanggaran = "$baseUrl/pelanggaran/ambil_riwayat_pelanggaran.php";
   static const String detailPelanggaran = "$baseUrl/pelanggaran/ambil_detail_pelanggaran.php";
+  static const String proxyFoto = "$baseUrl/pelanggaran/proxy_foto.php";
 }

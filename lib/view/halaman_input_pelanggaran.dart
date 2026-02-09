@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../provider/auth_provider.dart';
 import '../provider/input_pelanggaran_provider.dart';
 import '../provider/halaman_utama_provider.dart';
+import '../layanan/api_konfig.dart';
 
 class HalamanInputPelanggaran extends StatefulWidget {
   const HalamanInputPelanggaran({super.key});
@@ -399,10 +400,51 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
   }
 
   void _lihatFoto(BuildContext context, String fileId) {
+    final webStrategy = kIsWeb ? WebHtmlElementStrategy.prefer : WebHtmlElementStrategy.never;
     showDialog(context: context, builder: (_) => Dialog(child: Column(mainAxisSize: MainAxisSize.min, children: [
       AppBar(title: const Text("Bukti Foto"), automaticallyImplyLeading: false, backgroundColor: Colors.indigo.shade900, foregroundColor: Colors.white, actions: [IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context))]),
-      Image.network("https://drive.google.com/thumbnail?id=$fileId&sz=w1000", loadingBuilder: (ctx, child, progress) => progress == null ? child : const Padding(padding: EdgeInsets.all(50), child: CircularProgressIndicator())),
+      Image.network(
+        _resolveFotoUrl(fileId),
+        loadingBuilder: (ctx, child, progress) => progress == null ? child : const Padding(padding: EdgeInsets.all(50), child: CircularProgressIndicator()),
+        webHtmlElementStrategy: webStrategy,
+      ),
     ])));
+  }
+
+  String _resolveFotoUrl(String rawFoto) {
+    final trimmed = rawFoto.trim();
+    if (trimmed.isEmpty) return '';
+
+    final lower = trimmed.toLowerCase();
+    if (lower.startsWith('http://') || lower.startsWith('https://')) {
+      final uri = Uri.tryParse(trimmed);
+      final host = uri?.host.toLowerCase();
+      final isDrive = host == 'drive.google.com' || host == 'lh3.googleusercontent.com';
+      if (isDrive) {
+        final encoded = Uri.encodeComponent(trimmed);
+        return '${ApiKonfig.proxyFoto}?src=$encoded';
+      }
+      return trimmed;
+    }
+
+    final normalized = trimmed.replaceAll('\\', '/');
+
+    if (normalized.startsWith('/')) {
+      return '${ApiKonfig.baseUrl}$normalized';
+    }
+
+    if (normalized.contains('/')) {
+      return '${ApiKonfig.baseUrl}/$normalized';
+    }
+
+    final hasImageExt = RegExp(r'\.(png|jpe?g|gif|webp)$', caseSensitive: false)
+        .hasMatch(normalized);
+    if (hasImageExt) {
+      return '${ApiKonfig.baseUrl}/$normalized';
+    }
+
+    final encoded = Uri.encodeComponent(normalized);
+    return '${ApiKonfig.proxyFoto}?src=$encoded';
   }
 
   void _konfirmasiHapus(BuildContext context, InputPelanggaranProvider prov, String token, String id) {

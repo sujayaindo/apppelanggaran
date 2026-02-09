@@ -5,8 +5,9 @@ import '../layanan/api_konfig.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:typed_data'; 
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:image/image.dart' as img;
 
 class InputPelanggaranProvider with ChangeNotifier {
   final ApiServis _apiServis = ApiServis();
@@ -18,11 +19,12 @@ class InputPelanggaranProvider with ChangeNotifier {
   String _filterQuery = '';
   List<dynamic> _daftarSiswa = [];
   List<dynamic> _riwayatHariIni = [];
-  final List<int> _selectedPelanggaran = []; 
-  
+  final List<int> _selectedPelanggaran = [];
+
   Map<String, dynamic>? _siswaTerpilih;
   XFile? _fotoBukti;
   Uint8List? _webImage; // Menyimpan bytes foto untuk Web
+  Uint8List? _fotoBuktiBytes; // Bytes foto terkompres untuk upload
 
   bool _loadingMaster = false;
   bool _loadingRiwayat = false;
@@ -40,13 +42,14 @@ class InputPelanggaranProvider with ChangeNotifier {
       return name.contains(q) || kategori.contains(q);
     }).toList();
   }
+
   List<dynamic> get daftarSiswa => _daftarSiswa;
   List<dynamic> get riwayatHariIni => _riwayatHariIni;
   List<int> get selectedPelanggaran => _selectedPelanggaran;
   Map<String, dynamic>? get siswaTerpilih => _siswaTerpilih;
   XFile? get fotoBukti => _fotoBukti;
   Uint8List? get webImage => _webImage; // Digunakan di UI (Image.memory)
-  
+
   bool get loadingMaster => _loadingMaster;
   bool get loadingRiwayat => _loadingRiwayat;
   bool get isSaving => _isSaving;
@@ -71,17 +74,20 @@ class InputPelanggaranProvider with ChangeNotifier {
   Future<void> ambilFoto(bool dariKamera) async {
     final XFile? image = await _picker.pickImage(
       source: dariKamera ? ImageSource.camera : ImageSource.gallery,
-      imageQuality: 50,
+      imageQuality: 85,
     );
-    
+
     if (image != null) {
+      final originalBytes = await image.readAsBytes();
+      final compressed = _compressToTarget(
+        originalBytes,
+        maxSide: 316,
+        maxBytes: 80 * 1024,
+      );
       _fotoBukti = image;
-      
-      // PERBAIKAN: Isi _webImage jika di Web agar preview muncul
-      if (kIsWeb) {
-        _webImage = await image.readAsBytes();
-      }
-      
+      _fotoBuktiBytes = compressed;
+      _webImage = compressed;
+
       notifyListeners();
     }
   }
@@ -92,7 +98,10 @@ class InputPelanggaranProvider with ChangeNotifier {
     _loadingMaster = true;
     notifyListeners();
     try {
-      final hasil = await _apiServis.kirimPermintaan(ApiKonfig.masterPelanggaran, {'token': token});
+      final hasil = await _apiServis.kirimPermintaan(
+        ApiKonfig.masterPelanggaran,
+        {'token': token},
+      );
       if (hasil['status'] == 'sukses') {
         _masterPelanggaran = hasil['data'];
         _filterQuery = '';
@@ -123,7 +132,7 @@ class InputPelanggaranProvider with ChangeNotifier {
       try {
         final hasil = await _apiServis.kirimPermintaan(ApiKonfig.cariSiswa, {
           'token': token,
-          'keyword': keyword
+          'keyword': keyword,
         });
 
         if (hasil['status'] == 'sukses') {
@@ -140,7 +149,9 @@ class InputPelanggaranProvider with ChangeNotifier {
     _loadingRiwayat = true;
     notifyListeners();
     try {
-      final hasil = await _apiServis.kirimPermintaan(ApiKonfig.riwayatHariIni, {'token': token});
+      final hasil = await _apiServis.kirimPermintaan(ApiKonfig.riwayatHariIni, {
+        'token': token,
+      });
       if (hasil['status'] == 'sukses') {
         _riwayatHariIni = hasil['data'];
       }
@@ -152,7 +163,7 @@ class InputPelanggaranProvider with ChangeNotifier {
 
   Future<bool> simpanPelanggaran(String token) async {
     if (_siswaTerpilih == null || _selectedPelanggaran.isEmpty) return false;
-    
+
     _isSaving = true;
     notifyListeners();
 
@@ -161,26 +172,36 @@ class InputPelanggaranProvider with ChangeNotifier {
       var request = http.MultipartRequest('POST', uri);
 
       request.fields['token'] = token;
-      request.fields['siswa_kelas_id'] = _siswaTerpilih!['siswa_kelas_id'].toString();
+      request.fields['siswa_kelas_id'] = _siswaTerpilih!['siswa_kelas_id']
+          .toString();
       request.fields['pelanggaran_ids'] = _selectedPelanggaran.join(',');
       request.fields['keterangan'] = "Dicatat via Mobile";
 
       if (_fotoBukti != null) {
         if (kIsWeb) {
-          final bytes = await _fotoBukti!.readAsBytes();
-          request.files.add(http.MultipartFile.fromBytes(
-            'foto', 
-            bytes, 
-            filename: 'pelanggaran.jpg'
-          ));
+          final bytes = _fotoBuktiBytes ?? await _fotoBukti!.readAsBytes();
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'foto',
+              bytes,
+              filename: 'pelanggaran.jpg',
+            ),
+          );
         } else {
-          request.files.add(await http.MultipartFile.fromPath('foto', _fotoBukti!.path));
+          final bytes = _fotoBuktiBytes ?? await _fotoBukti!.readAsBytes();
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'foto',
+              bytes,
+              filename: 'pelanggaran.jpg',
+            ),
+          );
         }
       }
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      
+
       final hasil = json.decode(response.body);
 
       if (hasil['status'] == 'sukses') {
@@ -188,6 +209,7 @@ class InputPelanggaranProvider with ChangeNotifier {
         _siswaTerpilih = null;
         _fotoBukti = null;
         _webImage = null; // Reset pratinjau foto
+        _fotoBuktiBytes = null;
         ambilRiwayatHariIni(token);
         return true;
       }
@@ -218,14 +240,55 @@ class InputPelanggaranProvider with ChangeNotifier {
       return false; // WAJIB ada return false jika gagal
     } catch (e) {
       //print("Error hapus: $e");
-      return false; 
+      return false;
     }
   }
 
   void hapusFoto() {
     _fotoBukti = null;
     _webImage = null; // Reset untuk pratinjau web
+    _fotoBuktiBytes = null;
     notifyListeners();
   }
-  
+
+  Uint8List _compressToTarget(
+    Uint8List input, {
+    required int maxSide,
+    required int maxBytes,
+  }) {
+    final decoded = img.decodeImage(input);
+    if (decoded == null) return input;
+
+    var resized = decoded;
+    if (decoded.width > maxSide || decoded.height > maxSide) {
+      resized = img.copyResize(
+        decoded,
+        width: decoded.width >= decoded.height ? maxSide : null,
+        height: decoded.height > decoded.width ? maxSide : null,
+        interpolation: img.Interpolation.average,
+      );
+    }
+
+    var quality = 85;
+    var output = Uint8List.fromList(img.encodeJpg(resized, quality: quality));
+    while (output.lengthInBytes > maxBytes && quality > 35) {
+      quality -= 10;
+      output = Uint8List.fromList(img.encodeJpg(resized, quality: quality));
+    }
+
+    while (output.lengthInBytes > maxBytes) {
+      final newWidth = (resized.width * 0.9).round();
+      final newHeight = (resized.height * 0.9).round();
+      if (newWidth < 100 || newHeight < 100) break;
+      resized = img.copyResize(
+        resized,
+        width: newWidth,
+        height: newHeight,
+        interpolation: img.Interpolation.average,
+      );
+      output = Uint8List.fromList(img.encodeJpg(resized, quality: quality));
+    }
+
+    return output;
+  }
 }

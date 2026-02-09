@@ -13,6 +13,7 @@ dependencies:
   http: ^1.2.0           # Untuk komunikasi dengan API PHP
   shared_preferences: ^2.2.2  # Untuk fitur "Ingat Saya" (menyimpan token)
   image_picker: ^1.0.7
+  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:

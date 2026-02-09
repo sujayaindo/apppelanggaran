@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/detail_pelanggaran_provider.dart';
 import '../provider/auth_provider.dart';
+import '../layanan/api_konfig.dart';
 
 class HalamanDetailPelanggaran extends StatefulWidget {
   final int siswaId;
@@ -159,7 +161,8 @@ class _HalamanDetailPelanggaranState extends State<HalamanDetailPelanggaran> {
     );
   }
 
-  void _lihatFoto(BuildContext context, String fileId) {
+  void _lihatFoto(BuildContext context, String rawFoto) {
+    final webStrategy = kIsWeb ? WebHtmlElementStrategy.prefer : WebHtmlElementStrategy.never;
     showDialog(
       context: context,
       builder: (_) => Dialog(
@@ -173,10 +176,64 @@ class _HalamanDetailPelanggaranState extends State<HalamanDetailPelanggaran> {
               foregroundColor: Colors.white,
               actions: [IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context))],
             ),
-            Image.network('https://drive.google.com/thumbnail?id=$fileId&sz=w1000', loadingBuilder: (ctx, child, prog) => prog == null ? child : const Padding(padding: EdgeInsets.all(50), child: CircularProgressIndicator())),
+            Image.network(
+              _resolveFotoUrl(rawFoto),
+              loadingBuilder: (ctx, child, prog) =>
+                  prog == null ? child : const Padding(padding: EdgeInsets.all(50), child: CircularProgressIndicator()),
+              webHtmlElementStrategy: webStrategy,
+              errorBuilder: (ctx, err, stack) {
+                final fallback = _resolveFotoUrl(rawFoto, driveDownload: true);
+                return Image.network(
+                  fallback,
+                  loadingBuilder: (c, child, prog) =>
+                      prog == null ? child : const Padding(padding: EdgeInsets.all(50), child: CircularProgressIndicator()),
+                  webHtmlElementStrategy: webStrategy,
+                  errorBuilder: (c, e, s) => const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('Gagal memuat gambar'),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _resolveFotoUrl(String rawFoto, {bool driveDownload = false}) {
+    final trimmed = rawFoto.trim();
+    if (trimmed.isEmpty) return '';
+
+    final lower = trimmed.toLowerCase();
+    if (lower.startsWith('http://') || lower.startsWith('https://')) {
+      final uri = Uri.tryParse(trimmed);
+      final host = uri?.host.toLowerCase();
+      final isDrive = host == 'drive.google.com' || host == 'lh3.googleusercontent.com';
+      if (isDrive) {
+        final encoded = Uri.encodeComponent(trimmed);
+        return '${ApiKonfig.proxyFoto}?src=$encoded';
+      }
+      return trimmed;
+    }
+
+    final normalized = trimmed.replaceAll('\\', '/');
+
+    if (normalized.startsWith('/')) {
+      return '${ApiKonfig.baseUrl}$normalized';
+    }
+
+    if (normalized.contains('/')) {
+      return '${ApiKonfig.baseUrl}/$normalized';
+    }
+
+    final hasImageExt = RegExp(r'\.(png|jpe?g|gif|webp)$', caseSensitive: false)
+        .hasMatch(normalized);
+    if (hasImageExt) {
+      return '${ApiKonfig.baseUrl}/$normalized';
+    }
+
+    final encoded = Uri.encodeComponent(normalized);
+    return '${ApiKonfig.proxyFoto}?src=$encoded';
   }
 }
