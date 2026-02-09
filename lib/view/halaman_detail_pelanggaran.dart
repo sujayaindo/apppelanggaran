@@ -53,7 +53,7 @@ class _HalamanDetailPelanggaranState extends State<HalamanDetailPelanggaran> {
                             // Header card with name + class
                             final nama = widget.namaSiswa ?? (prov.detail.isNotEmpty ? prov.detail.first['nama_siswa'] ?? '-' : '-');
                             final kelas = prov.detail.isNotEmpty ? (prov.detail.first['nama_kelas'] ?? '') : '';
-                            String _initials(String s) {
+                            String initials(String s) {
                               final parts = s.split(' ').where((p) => p.isNotEmpty).toList();
                               if (parts.isEmpty) return '';
                               if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
@@ -75,7 +75,7 @@ class _HalamanDetailPelanggaranState extends State<HalamanDetailPelanggaran> {
                                     CircleAvatar(
                                       radius: 28,
                                       backgroundColor: Colors.white24,
-                                      child: Text(_initials(nama), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                      child: Text(initials(nama), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(

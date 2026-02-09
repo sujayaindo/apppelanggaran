@@ -169,14 +169,27 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                   color: prov.selectedPelanggaran.isEmpty ? Colors.grey : Colors.black),
               ),
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Cari atau filter kategori...",
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      isDense: true,
+                    ),
+                    onChanged: (v) => prov.setFilter(v),
+                  ),
+                ),
+
                 SizedBox(
-                  height: 250, 
+                  height: 250,
                   child: prov.loadingMaster
                       ? const Center(child: CircularProgressIndicator())
                       : ListView.builder(
-                          itemCount: prov.masterPelanggaran.length,
+                          itemCount: prov.filteredMasterPelanggaran.length,
                           itemBuilder: (context, index) {
-                            final item = prov.masterPelanggaran[index];
+                            final item = prov.filteredMasterPelanggaran[index];
                             final int idInt = int.parse(item['id'].toString());
                             return CheckboxListTile(
                               activeColor: Colors.indigo.shade900,

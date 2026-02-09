@@ -15,6 +15,7 @@ class InputPelanggaranProvider with ChangeNotifier {
 
   // --- STATE VARIABLES ---
   List<dynamic> _masterPelanggaran = [];
+  String _filterQuery = '';
   List<dynamic> _daftarSiswa = [];
   List<dynamic> _riwayatHariIni = [];
   final List<int> _selectedPelanggaran = []; 
@@ -29,6 +30,16 @@ class InputPelanggaranProvider with ChangeNotifier {
 
   // --- GETTERS ---
   List<dynamic> get masterPelanggaran => _masterPelanggaran;
+  String get filterQuery => _filterQuery;
+  List<dynamic> get filteredMasterPelanggaran {
+    final q = _filterQuery.trim().toLowerCase();
+    if (q.isEmpty) return _masterPelanggaran;
+    return _masterPelanggaran.where((e) {
+      final name = (e['nama_pelanggaran'] ?? '').toString().toLowerCase();
+      final kategori = (e['kategori'] ?? '').toString().toLowerCase();
+      return name.contains(q) || kategori.contains(q);
+    }).toList();
+  }
   List<dynamic> get daftarSiswa => _daftarSiswa;
   List<dynamic> get riwayatHariIni => _riwayatHariIni;
   List<int> get selectedPelanggaran => _selectedPelanggaran;
@@ -84,11 +95,17 @@ class InputPelanggaranProvider with ChangeNotifier {
       final hasil = await _apiServis.kirimPermintaan(ApiKonfig.masterPelanggaran, {'token': token});
       if (hasil['status'] == 'sukses') {
         _masterPelanggaran = hasil['data'];
+        _filterQuery = '';
       }
     } finally {
       _loadingMaster = false;
       notifyListeners();
     }
+  }
+
+  void setFilter(String q) {
+    _filterQuery = q;
+    notifyListeners();
   }
 
   Future<void> cariSiswa(String token, String keyword) async {

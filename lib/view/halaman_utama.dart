@@ -5,6 +5,7 @@ import '../provider/halaman_utama_provider.dart';
 import '../model/user_model.dart';
 import 'halaman_input_pelanggaran.dart';
 import 'halaman_catatan_pelanggaran.dart';
+import 'halaman_ubah_password.dart';
 
 class HalamanUtama extends StatefulWidget {
   const HalamanUtama({super.key});
@@ -200,7 +201,14 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
           ),
           Row(
             children: [
-              _buildHeaderIcon(Icons.settings_outlined, () {}),
+              _buildHeaderIcon(
+                Icons.settings_outlined,
+                () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const HalamanUbahPassword()),
+                  );
+                },
+              ),
               const SizedBox(width: 10),
               _buildHeaderIcon(
                 Icons.logout_rounded, 
