@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/catatan_pelanggaran_provider.dart';
+import '../provider/input_pelanggaran_provider.dart';
 import '../provider/auth_provider.dart';
 import 'halaman_detail_pelanggaran.dart';
 
@@ -18,6 +19,7 @@ class _HalamanCatatanPelanggaranState extends State<HalamanCatatanPelanggaran> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ambilData();
+      _ambilMasterPelanggaran();
     });
   }
 
@@ -26,9 +28,25 @@ class _HalamanCatatanPelanggaranState extends State<HalamanCatatanPelanggaran> {
     context.read<CatatanPelanggaranProvider>().ambilData(token);
   }
 
+  void _ambilMasterPelanggaran() {
+    final token = context.read<AuthProvider>().user?.token ?? "";
+    final masterProv = context.read<InputPelanggaranProvider>();
+    if (!masterProv.loadingMaster && masterProv.masterPelanggaran.isEmpty) {
+      masterProv.ambilMasterPelanggaran(token);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final prov = context.watch<CatatanPelanggaranProvider>();
+    final masterProv = context.watch<InputPelanggaranProvider>();
+    final jenisOptions = masterProv.masterPelanggaran
+        .map((e) => (e['nama_pelanggaran'] ?? '').toString())
+        .where((e) => e.trim().isNotEmpty)
+        .toSet()
+        .toList()
+      ..sort();
+    final selectedJenis = prov.jenisPelanggaranController.text;
 
     return Scaffold(
       appBar: AppBar(
@@ -62,6 +80,35 @@ class _HalamanCatatanPelanggaranState extends State<HalamanCatatanPelanggaran> {
                 decoration: const InputDecoration(
                   labelText: "Kelas (Misal: X AK 1)",
                   prefixIcon: Icon(Icons.class_),
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                ),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                initialValue: selectedJenis.isEmpty ? '' : selectedJenis,
+                isExpanded: true,
+                items: [
+                  const DropdownMenuItem(
+                    value: '',
+                    child: Text('Semua'),
+                  ),
+                  ...jenisOptions.map(
+                    (nama) => DropdownMenuItem(
+                      value: nama,
+                      child: Text(nama, overflow: TextOverflow.ellipsis),
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    prov.jenisPelanggaranController.text = value ?? '';
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: "Jenis Pelanggaran",
+                  prefixIcon: Icon(Icons.warning_amber_rounded),
                   border: OutlineInputBorder(),
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 0, horizontal: 12),

@@ -14,6 +14,7 @@ class CatatanPelanggaranProvider with ChangeNotifier {
   // State untuk Filter
   final TextEditingController namaController = TextEditingController();
   final TextEditingController kelasController = TextEditingController();
+  final TextEditingController jenisPelanggaranController = TextEditingController();
   DateTime? tanggalAwal;
   DateTime? tanggalAkhir;
 
@@ -38,6 +39,7 @@ class CatatanPelanggaranProvider with ChangeNotifier {
   void resetFilter() {
     namaController.clear();
     kelasController.clear();
+    jenisPelanggaranController.clear();
     final now = DateTime.now();
     tanggalAwal = DateTime(now.year, now.month, now.day);
     tanggalAkhir = DateTime(now.year, now.month, now.day);
@@ -54,6 +56,9 @@ class CatatanPelanggaranProvider with ChangeNotifier {
       // Masukkan parameter filter jika ada isinya
       if (namaController.text.isNotEmpty) params['nama'] = namaController.text;
       if (kelasController.text.isNotEmpty) params['kelas'] = kelasController.text;
+      if (jenisPelanggaranController.text.isNotEmpty) {
+        params['jenis_pelanggaran'] = jenisPelanggaranController.text;
+      }
       
       if (tanggalAwal != null && tanggalAkhir != null) {
         params['tanggal_awal'] = tanggalAwal!.toIso8601String().split('T')[0];
