@@ -27,6 +27,7 @@ class InputPelanggaranProvider with ChangeNotifier {
   Uint8List? _fotoBuktiBytes; // Bytes foto terkompres untuk upload
   String? _lastErrorMessage;
   Map<String, dynamic>? _lastErrorDetail;
+  bool _isProcessingImage = false;
 
   bool _loadingMaster = false;
   bool _loadingRiwayat = false;
@@ -53,6 +54,7 @@ class InputPelanggaranProvider with ChangeNotifier {
   Uint8List? get webImage => _webImage; // Digunakan di UI (Image.memory)
   String? get lastErrorMessage => _lastErrorMessage;
   Map<String, dynamic>? get lastErrorDetail => _lastErrorDetail;
+  bool get isProcessingImage => _isProcessingImage;
 
   bool get loadingMaster => _loadingMaster;
   bool get loadingRiwayat => _loadingRiwayat;
@@ -76,22 +78,30 @@ class InputPelanggaranProvider with ChangeNotifier {
   }
 
   Future<void> ambilFoto(bool dariKamera) async {
+    _isProcessingImage = true;
+    notifyListeners();
+
     final XFile? image = await _picker.pickImage(
       source: dariKamera ? ImageSource.camera : ImageSource.gallery,
       imageQuality: 85,
+      maxWidth: 1024,
+      maxHeight: 1024,
     );
 
-    if (image != null) {
-      final originalBytes = await image.readAsBytes();
-      final compressed = _compressToTarget(
-        originalBytes,
-        maxSide: 316,
-        maxBytes: 80 * 1024,
-      );
-      _fotoBukti = image;
-      _fotoBuktiBytes = compressed;
-      _webImage = compressed;
-
+    try {
+      if (image != null) {
+        final originalBytes = await image.readAsBytes();
+        final compressed = _compressToTarget(
+          originalBytes,
+          maxSide: 256,
+          maxBytes: 50 * 1024,
+        );
+        _fotoBukti = image;
+        _fotoBuktiBytes = compressed;
+        _webImage = compressed;
+      }
+    } finally {
+      _isProcessingImage = false;
       notifyListeners();
     }
   }
@@ -276,6 +286,7 @@ class InputPelanggaranProvider with ChangeNotifier {
     _fotoBukti = null;
     _webImage = null; // Reset untuk pratinjau web
     _fotoBuktiBytes = null;
+    _isProcessingImage = false;
     notifyListeners();
   }
 

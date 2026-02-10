@@ -255,9 +255,11 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                         child: Container(
                           color: Colors.black,
                           constraints: const BoxConstraints(maxHeight: 400, minHeight: 200, minWidth: double.infinity),
-                          child: kIsWeb 
-                            ? Image.memory(prov.webImage!, fit: BoxFit.contain)
-                            : Image.file(File(prov.fotoBukti!.path), fit: BoxFit.contain),
+                          child: prov.isProcessingImage
+                              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                              : kIsWeb
+                                  ? Image.memory(prov.webImage!, fit: BoxFit.contain)
+                                  : Image.file(File(prov.fotoBukti!.path), fit: BoxFit.contain),
                         ),
                       ),
                       TextButton.icon(
