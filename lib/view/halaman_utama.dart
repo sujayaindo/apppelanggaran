@@ -47,7 +47,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     final homeWatch = context.watch<HalamanUtamaProvider>();
     final user = authWatch.user;
     final String peran = user?.peran.toLowerCase() ?? "";
-    final bool canInput = peran == 'guru' || peran == 'pegawai' || peran == 'pks';
+    final bool canInput = peran == 'guru' || peran == 'pegawai' || peran == 'pks' || peran == 'osis';
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
