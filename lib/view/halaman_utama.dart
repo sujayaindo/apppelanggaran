@@ -14,8 +14,8 @@ class HalamanUtama extends StatefulWidget {
   State<HalamanUtama> createState() => _HalamanUtamaState();
 }
 
-class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver {
-  
+class _HalamanUtamaState extends State<HalamanUtama>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -47,7 +47,11 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     final homeWatch = context.watch<HalamanUtamaProvider>();
     final user = authWatch.user;
     final String peran = user?.peran.toLowerCase() ?? "";
-    final bool canInput = peran == 'guru' || peran == 'pegawai' || peran == 'pks' || peran == 'osis';
+    final bool canInput =
+        peran == 'guru' ||
+        peran == 'pegawai' ||
+        peran == 'pks' ||
+        peran == 'osis';
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -60,8 +64,8 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
             Widget mainContent = Column(
               children: [
                 // 1. HEADER
-                _buildHeader(user), 
-                
+                _buildHeader(user),
+
                 // 2. LAYANAN & TOMBOL MENU
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -70,7 +74,11 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                     children: [
                       const Text(
                         "Layanan SIMPEL",
-                        style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -84,7 +92,10 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const HalamanInputPelanggaran()),
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const HalamanInputPelanggaran(),
+                                  ),
                                 );
                               },
                             ),
@@ -100,7 +111,10 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                                 // Navigasi Riwayat Lengkap
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const HalamanCatatanPelanggaran()),
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const HalamanCatatanPelanggaran(),
+                                  ),
                                 );
                               },
                             ),
@@ -110,7 +124,10 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                       const SizedBox(height: 32),
                       const Text(
                         "Tren Pelanggaran Hari Ini",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -127,8 +144,11 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () {
-                        final token = context.read<AuthProvider>().user?.token ?? "";
-                        return context.read<HalamanUtamaProvider>().ambilStatistik(token);
+                        final token =
+                            context.read<AuthProvider>().user?.token ?? "";
+                        return context
+                            .read<HalamanUtamaProvider>()
+                            .ambilStatistik(token);
                       },
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
@@ -140,8 +160,8 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
               ],
             );
 
-            return isLandscape 
-                ? SingleChildScrollView(child: mainContent) 
+            return isLandscape
+                ? SingleChildScrollView(child: mainContent)
                 : mainContent;
           },
         ),
@@ -162,9 +182,9 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
         boxShadow: [
           BoxShadow(
             // PERBAIKAN: withOpacity -> withValues
-            color: Colors.indigo.withValues(alpha: 0.3), 
-            blurRadius: 15, 
-            offset: const Offset(0, 8)
+            color: Colors.indigo.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -175,25 +195,40 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Selamat Datang,", style: TextStyle(color: Colors.white70, fontSize: 13)),
+                const Text(
+                  "Selamat Datang,",
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   user?.nama ?? "Pengguna",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     // PERBAIKAN: withOpacity -> withValues
                     color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10)
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     user?.peran.toUpperCase() ?? "-",
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
                   ),
                 ),
               ],
@@ -201,19 +236,18 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
           ),
           Row(
             children: [
-              _buildHeaderIcon(
-                Icons.settings_outlined,
-                () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const HalamanUbahPassword()),
-                  );
-                },
-              ),
+              _buildHeaderIcon(Icons.settings_outlined, () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const HalamanUbahPassword(),
+                  ),
+                );
+              }),
               const SizedBox(width: 10),
               _buildHeaderIcon(
-                Icons.logout_rounded, 
-                () => context.read<AuthProvider>().logout(), 
-                isDanger: true
+                Icons.logout_rounded,
+                () => context.read<AuthProvider>().logout(),
+                isDanger: true,
               ),
             ],
           ),
@@ -240,14 +274,16 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(22),
-            boxShadow: isActive ? [
-              BoxShadow(
-                // PERBAIKAN: withOpacity -> withValues
-                color: color.withValues(alpha: 0.3), 
-                blurRadius: 12, 
-                offset: const Offset(0, 6)
-              )
-            ] : [],
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      // PERBAIKAN: withOpacity -> withValues
+                      color: color.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : [],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -257,7 +293,11 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -267,20 +307,28 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
   }
 
   // --- KOMPONEN IKON HEADER ---
-  Widget _buildHeaderIcon(IconData icon, VoidCallback onTap, {bool isDanger = false}) {
+  Widget _buildHeaderIcon(
+    IconData icon,
+    VoidCallback onTap, {
+    bool isDanger = false,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(15),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDanger 
+          color: isDanger
               // PERBAIKAN: withOpacity -> withValues
-              ? Colors.red.withValues(alpha: 0.2) 
-              : Colors.white.withValues(alpha: 0.1), 
+              ? Colors.red.withValues(alpha: 0.2)
+              : Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Icon(icon, color: isDanger ? Colors.redAccent.shade100 : Colors.white, size: 22),
+        child: Icon(
+          icon,
+          color: isDanger ? Colors.redAccent.shade100 : Colors.white,
+          size: 22,
+        ),
       ),
     );
   }
@@ -288,22 +336,30 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
   // --- KOMPONEN LIST STATISTIK ---
   Widget _buildStatistikList(HalamanUtamaProvider provider) {
     if (provider.loadingStatistik) {
-      return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
     if (provider.statistikJenis.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(35),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white, 
-          borderRadius: BorderRadius.circular(25), 
-          border: Border.all(color: Colors.grey.shade200)
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(color: Colors.grey.shade200),
         ),
         child: const Column(
           children: [
             Icon(Icons.analytics_outlined, color: Colors.grey, size: 40),
             SizedBox(height: 12),
-            Text("Belum ada data hari ini.", style: TextStyle(color: Colors.grey, fontSize: 14)),
+            Text(
+              "Belum ada data hari ini.",
+              style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
           ],
         ),
       );
@@ -316,14 +372,19 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 2.8, 
+        childAspectRatio: 1.7, // Diubah lebih kecil agar kartu lebih tinggi
       ),
       itemBuilder: (context, index) {
         final item = provider.statistikJenis[index];
-        final List<Color> labelColors = [Colors.indigo, Colors.orange, Colors.red, Colors.teal];
+        final List<Color> labelColors = [
+          Colors.indigo,
+          Colors.orange,
+          Colors.red,
+          Colors.teal,
+        ];
         final Color themeColor = labelColors[index % labelColors.length];
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
@@ -331,7 +392,14 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
           ),
           child: Row(
             children: [
-              Container(width: 4, height: 20, decoration: BoxDecoration(color: themeColor, borderRadius: BorderRadius.circular(10))),
+              Container(
+                width: 4,
+                height: 30, // Diperpanjang sedikit
+                decoration: BoxDecoration(
+                  color: themeColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -339,15 +407,22 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item['jenis'], 
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-                      maxLines: 2,
+                      item['jenis'],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
+                      maxLines: 3, // Ditambah jadi 3 baris
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       "${item['jumlah']} Kasus",
-                      style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),

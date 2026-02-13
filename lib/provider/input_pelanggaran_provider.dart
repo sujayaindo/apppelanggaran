@@ -228,7 +228,8 @@ class InputPelanggaranProvider with ChangeNotifier {
       var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200) {
-        _lastErrorMessage = 'Gagal menghubungi server (${response.statusCode}).';
+        _lastErrorMessage =
+            'Gagal menghubungi server (${response.statusCode}).';
         _lastErrorDetail = {'response_body': response.body};
         return false;
       }
@@ -246,7 +247,8 @@ class InputPelanggaranProvider with ChangeNotifier {
         return true;
       }
 
-      _lastErrorMessage = (hasil['pesan'] ?? 'Gagal menyimpan data.').toString();
+      _lastErrorMessage = (hasil['pesan'] ?? 'Gagal menyimpan data.')
+          .toString();
       _lastErrorDetail = hasil['detail'] is Map
           ? Map<String, dynamic>.from(hasil['detail'])
           : {'detail': hasil['detail']};
@@ -259,6 +261,33 @@ class InputPelanggaranProvider with ChangeNotifier {
       _isSaving = false;
       notifyListeners();
     }
+  }
+
+  Future<List<Map<String, dynamic>>> cekDuplikasi(String token) async {
+    if (_siswaTerpilih == null || _selectedPelanggaran.isEmpty) {
+      return [];
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse(ApiKonfig.cekDuplikasi),
+        body: {
+          "token": token,
+          "siswa_kelas_id": _siswaTerpilih!['siswa_kelas_id'].toString(),
+          "pelanggaran_ids": _selectedPelanggaran.join(','),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status'] == 'sukses') {
+          return List<Map<String, dynamic>>.from(data['data']);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error cek duplikasi: $e");
+    }
+    return [];
   }
 
   Future<bool> hapusPelanggaran(String token, String id) async {
@@ -288,6 +317,13 @@ class InputPelanggaranProvider with ChangeNotifier {
     _fotoBuktiBytes = null;
     _isProcessingImage = false;
     notifyListeners();
+  }
+
+  void resetInput() {
+    _siswaTerpilih = null;
+    _selectedPelanggaran.clear();
+    hapusFoto(); // Sudah notifyListeners di dalamnya
+    // notifyListeners(); // Tidak perlu lagi karena hapusFoto sudah trigger
   }
 
   Uint8List _compressToTarget(

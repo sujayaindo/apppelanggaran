@@ -12,7 +12,8 @@ class HalamanInputPelanggaran extends StatefulWidget {
   const HalamanInputPelanggaran({super.key});
 
   @override
-  State<HalamanInputPelanggaran> createState() => _HalamanInputPelanggaranState();
+  State<HalamanInputPelanggaran> createState() =>
+      _HalamanInputPelanggaranState();
 }
 
 class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
@@ -33,7 +34,10 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
               Text(message),
               if (detail != null && detail.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                const Text('Detail:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  'Detail:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 6),
                 SelectableText(detail, style: const TextStyle(fontSize: 12)),
               ],
@@ -57,7 +61,7 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
       if (!mounted) return;
       final token = context.read<AuthProvider>().user?.token ?? "";
       final prov = context.read<InputPelanggaranProvider>();
-      
+
       prov.ambilMasterPelanggaran(token);
       prov.ambilRiwayatHariIni(token);
     });
@@ -80,10 +84,16 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
         length: 2,
         child: Scaffold(
           // Agar keyboard tidak memicu overflow saat muncul
-          resizeToAvoidBottomInset: true, 
+          resizeToAvoidBottomInset: true,
           appBar: AppBar(
-            title: const Text("Catat Pelanggaran", 
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            title: const Text(
+              "Catat Pelanggaran",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             backgroundColor: Colors.indigo.shade900,
             foregroundColor: Colors.white,
             elevation: 0,
@@ -115,27 +125,37 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Cari Siswa", style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            "Cari Siswa",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           TextField(
             controller: _searchSiswaController,
             decoration: InputDecoration(
               hintText: "Ketik Nama atau NIS...",
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               filled: true,
               fillColor: Colors.white,
             ),
             onChanged: (val) => prov.cariSiswa(token, val),
           ),
-          
+
           if (prov.daftarSiswa.isNotEmpty && prov.siswaTerpilih == null)
             Container(
               margin: const EdgeInsets.only(top: 4),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                  ),
+                ],
               ),
               child: ListView.builder(
                 shrinkWrap: true,
@@ -144,7 +164,10 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                 itemBuilder: (context, index) {
                   final s = prov.daftarSiswa[index];
                   return ListTile(
-                    title: Text(s['nama'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                    title: Text(
+                      s['nama'],
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Text("${s['nis']} • ${s['nama_kelas']}"),
                     onTap: () {
                       prov.pilihSiswa(s);
@@ -169,21 +192,28 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                 children: [
                   const Icon(Icons.check_circle, color: Colors.green),
                   const SizedBox(width: 10),
-                  Expanded(child: Text("Terpilih: ${prov.siswaTerpilih!['nama']}", 
-                    style: const TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                    child: Text(
+                      "Terpilih: ${prov.siswaTerpilih!['nama']}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
                     onPressed: () {
                       prov.pilihSiswa(null);
                       _searchSiswaController.clear();
                     },
-                  )
+                  ),
                 ],
               ),
             ),
 
           const SizedBox(height: 24),
-          const Text("Pilih Jenis Pelanggaran", style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            "Pilih Jenis Pelanggaran",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
 
           Card(
@@ -193,23 +223,37 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: ExpansionTile(
-              onExpansionChanged: (exp) { if(exp) FocusScope.of(context).unfocus(); },
-              leading: Icon(Icons.list_alt_rounded, color: Colors.indigo.shade900),
+              onExpansionChanged: (exp) {
+                if (exp) FocusScope.of(context).unfocus();
+              },
+              leading: Icon(
+                Icons.list_alt_rounded,
+                color: Colors.indigo.shade900,
+              ),
               title: Text(
-                prov.selectedPelanggaran.isEmpty 
-                    ? "Klik untuk memilih..." 
+                prov.selectedPelanggaran.isEmpty
+                    ? "Klik untuk memilih..."
                     : "${prov.selectedPelanggaran.length} Dipilih",
-                style: TextStyle(fontSize: 14, 
-                  color: prov.selectedPelanggaran.isEmpty ? Colors.grey : Colors.black),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: prov.selectedPelanggaran.isEmpty
+                      ? Colors.grey
+                      : Colors.black,
+                ),
               ),
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: "Cari atau filter kategori...",
                       prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       isDense: true,
                     ),
                     onChanged: (v) => prov.setFilter(v),
@@ -227,11 +271,17 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                             final int idInt = int.parse(item['id'].toString());
                             return CheckboxListTile(
                               activeColor: Colors.indigo.shade900,
-                              title: Text(item['nama_pelanggaran'], style: const TextStyle(fontSize: 13)),
-                              subtitle: Text("${item['kategori']} • ${item['poin']} Poin", 
-                                style: const TextStyle(fontSize: 11)),
+                              title: Text(
+                                item['nama_pelanggaran'],
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                              subtitle: Text(
+                                "${item['kategori']} • ${item['poin']} Poin",
+                                style: const TextStyle(fontSize: 11),
+                              ),
                               value: prov.selectedPelanggaran.contains(idInt),
-                              onChanged: (bool? value) => prov.togglePelanggaran(idInt),
+                              onChanged: (bool? value) =>
+                                  prov.togglePelanggaran(idInt),
                             );
                           },
                         ),
@@ -241,9 +291,12 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
           ),
 
           const SizedBox(height: 24),
-          const Text("Bukti Foto", style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            "Bukti Foto",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
-          
+
           Center(
             child: Column(
               children: [
@@ -254,18 +307,38 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           color: Colors.black,
-                          constraints: const BoxConstraints(maxHeight: 400, minHeight: 200, minWidth: double.infinity),
+                          constraints: const BoxConstraints(
+                            maxHeight: 400,
+                            minHeight: 200,
+                            minWidth: double.infinity,
+                          ),
                           child: prov.isProcessingImage
-                              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                )
                               : kIsWeb
-                                  ? Image.memory(prov.webImage!, fit: BoxFit.contain)
-                                  : Image.file(File(prov.fotoBukti!.path), fit: BoxFit.contain),
+                              ? Image.memory(
+                                  prov.webImage!,
+                                  fit: BoxFit.contain,
+                                )
+                              : Image.file(
+                                  File(prov.fotoBukti!.path),
+                                  fit: BoxFit.contain,
+                                ),
                         ),
                       ),
                       TextButton.icon(
                         onPressed: () => prov.hapusFoto(),
-                        icon: const Icon(Icons.delete_forever, color: Colors.red),
-                        label: const Text("Hapus & Ambil Ulang", style: TextStyle(color: Colors.red)),
+                        icon: const Icon(
+                          Icons.delete_forever,
+                          color: Colors.red,
+                        ),
+                        label: const Text(
+                          "Hapus & Ambil Ulang",
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ),
                     ],
                   )
@@ -273,18 +346,22 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                   InkWell(
                     onTap: () => _pilihSumberFoto(context, prov),
                     child: Container(
-                      height: 150, width: double.infinity,
+                      height: 150,
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300)
+                        border: Border.all(color: Colors.grey.shade300),
                       ),
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.camera_alt, size: 50, color: Colors.grey),
                           SizedBox(height: 8),
-                          Text("Ambil Foto Bukti", style: TextStyle(color: Colors.grey)),
+                          Text(
+                            "Ambil Foto Bukti",
+                            style: TextStyle(color: Colors.grey),
+                          ),
                         ],
                       ),
                     ),
@@ -295,30 +372,152 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
 
           const SizedBox(height: 40),
           SizedBox(
-            width: double.infinity, height: 55,
+            width: double.infinity,
+            height: 55,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade700, foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: Colors.green.shade700,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              onPressed: prov.isSaving ? null : () async {
-                final sukses = await prov.simpanPelanggaran(token);
-                if (!mounted) return; 
-                if (sukses) {
-                  context.read<HalamanUtamaProvider>().ambilStatistik(token);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data berhasil disimpan!")));
-                  _searchSiswaController.clear();
-                } else {
-                  final message = prov.lastErrorMessage ?? 'Gagal menyimpan data.';
-                  final detail = prov.lastErrorDetail == null
-                      ? null
-                      : const JsonEncoder.withIndent('  ').convert(prov.lastErrorDetail);
-                  await _showErrorDialog(message, detail);
-                }
-              },
-              child: prov.isSaving 
-                ? const CircularProgressIndicator(color: Colors.white) 
-                : const Text("SIMPAN PELANGGARAN", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              onPressed: prov.isSaving
+                  ? null
+                  : () async {
+                      // [NEW] Cek Duplikasi Terlebih Dahulu
+                      final duplicates = await prov.cekDuplikasi(token);
+
+                      if (!mounted) {
+                        return;
+                      }
+
+                      if (duplicates.isNotEmpty) {
+                        // Tampilkan Dialog Peringatan
+                        final bool? lanjut = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text("⚠️ Peringatan Duplikasi"),
+                            content: SizedBox(
+                              width: double.maxFinite,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Siswa ini sudah dicatat melakukan pelanggaran berikut hari ini:",
+                                    style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Flexible(
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: duplicates.length,
+                                      itemBuilder: (context, index) {
+                                        final d = duplicates[index];
+                                        return ListTile(
+                                          contentPadding: EdgeInsets.zero,
+                                          leading: const Icon(
+                                            Icons.warning_amber_rounded,
+                                            color: Colors.orange,
+                                          ),
+                                          title: Text(
+                                            d['nama_pelanggaran'],
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            "Dicatat oleh: ${d['nama_pencatat']}",
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    "Apakah Anda yakin ingin tetap mencatatnya?",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(ctx, false), // Batal
+                                child: const Text(
+                                  "Batal",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red.shade700,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () =>
+                                    Navigator.pop(ctx, true), // Lanjutkan
+                                child: const Text("Lanjutkan"),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (lanjut != true) {
+                          // [NEW] Jika batal, reset input
+                          if (context.mounted) {
+                            prov.resetInput();
+                            _searchSiswaController.clear();
+                          }
+                          return;
+                        }
+                      }
+
+                      // Lanjut Simpan (Logika Lama)
+                      if (!mounted) {
+                        return;
+                      }
+                      final sukses = await prov.simpanPelanggaran(token);
+                      if (!mounted) return;
+                      if (sukses) {
+                        context.read<HalamanUtamaProvider>().ambilStatistik(
+                          token,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Data berhasil disimpan!"),
+                          ),
+                        );
+                        _searchSiswaController.clear();
+                      } else {
+                        final message =
+                            prov.lastErrorMessage ?? 'Gagal menyimpan data.';
+                        final detail = prov.lastErrorDetail == null
+                            ? null
+                            : const JsonEncoder.withIndent(
+                                '  ',
+                              ).convert(prov.lastErrorDetail);
+                        await _showErrorDialog(message, detail);
+                      }
+                    },
+              child: prov.isSaving
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      "SIMPAN PELANGGARAN",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -328,8 +527,12 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
 
   // --- TAB 2: RIWAYAT HARI INI (FIX: VERTICAL BUTTONS & NO OVERFLOW) ---
   Widget _buildTabRiwayat(InputPelanggaranProvider prov, String token) {
-    if (prov.loadingRiwayat) return const Center(child: CircularProgressIndicator());
-    if (prov.riwayatHariIni.isEmpty) return const Center(child: Text("Belum ada catatan hari ini."));
+    if (prov.loadingRiwayat) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (prov.riwayatHariIni.isEmpty) {
+      return const Center(child: Text("Belum ada catatan hari ini."));
+    }
 
     return RefreshIndicator(
       onRefresh: () => prov.ambilRiwayatHariIni(token),
@@ -341,7 +544,9 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
           return Card(
             elevation: 2,
             margin: const EdgeInsets.only(bottom: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16), // Padding internal kartu
               child: Row(
@@ -350,8 +555,13 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                   // 1. FOTO PROFIL / INISIAL
                   CircleAvatar(
                     backgroundColor: Colors.indigo.withValues(alpha: 0.1),
-                    child: Text((item['nama_siswa'] ?? "S")[0].toUpperCase(), 
-                      style: TextStyle(color: Colors.indigo.shade900, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      (item['nama_siswa'] ?? "S")[0].toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.indigo.shade900,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 16),
 
@@ -362,27 +572,40 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                       children: [
                         // Nama Siswa (Utuh)
                         Text(
-                          item['nama_siswa'] ?? "Siswa", 
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          item['nama_siswa'] ?? "Siswa",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         // Badge Kelas
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.orange.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            "Kelas: ${item['nama_kelas'] ?? '-'}", 
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange.shade900),
+                            "Kelas: ${item['nama_kelas'] ?? '-'}",
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange.shade900,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
                         // Jenis Pelanggaran (Utuh)
                         Text(
-                          item['nama_pelanggaran'] ?? "-", 
-                          style: const TextStyle(color: Colors.black87, fontSize: 13),
+                          item['nama_pelanggaran'] ?? "-",
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         // Nama Pencatat (Utuh)
@@ -391,13 +614,31 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(top: 2),
-                              child: Icon(Icons.person_pin_outlined, size: 14, color: Colors.grey),
+                              child: Icon(
+                                Icons.person_pin_outlined,
+                                size: 14,
+                                color: Colors.grey,
+                              ),
                             ),
                             const SizedBox(width: 4),
                             Expanded(
-                              child: Text(
-                                "Dicatat oleh: ${item['nama_pencatat'] ?? '-'}", 
-                                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                              child: RichText(
+                                text: TextSpan(
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: "Dicatat oleh: "),
+                                    TextSpan(
+                                      text: item['nama_pencatat'] ?? '-',
+                                      style: TextStyle(
+                                        color: Colors.indigo.shade900,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -410,15 +651,30 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
                   // 3. TOMBOL AKSI (VERTIKAL DI KANAN)
                   Column(
                     children: [
-                      if (item['url_bukti_foto'] != null && item['url_bukti_foto'] != "")
+                      if (item['url_bukti_foto'] != null &&
+                          item['url_bukti_foto'] != "")
                         IconButton(
-                          icon: const Icon(Icons.image_outlined, color: Colors.blue, size: 24),
-                          onPressed: () => _lihatFoto(context, item['url_bukti_foto']),
+                          icon: const Icon(
+                            Icons.image_outlined,
+                            color: Colors.blue,
+                            size: 24,
+                          ),
+                          onPressed: () =>
+                              _lihatFoto(context, item['url_bukti_foto']),
                         ),
                       const SizedBox(height: 8),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
-                        onPressed: () => _konfirmasiHapus(context, prov, token, item['id'].toString()),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                          size: 24,
+                        ),
+                        onPressed: () => _konfirmasiHapus(
+                          context,
+                          prov,
+                          token,
+                          item['id'].toString(),
+                        ),
                       ),
                     ],
                   ),
@@ -434,22 +690,69 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
   // --- FUNGSI HELPER ---
   void _pilihSumberFoto(BuildContext context, InputPelanggaranProvider prov) {
     FocusScope.of(context).unfocus();
-    showModalBottomSheet(context: context, builder: (_) => SafeArea(child: Wrap(children: [
-      ListTile(leading: const Icon(Icons.camera), title: const Text("Kamera"), onTap: () { Navigator.pop(context); prov.ambilFoto(true); }),
-      ListTile(leading: const Icon(Icons.photo_library), title: const Text("Galeri"), onTap: () { Navigator.pop(context); prov.ambilFoto(false); }),
-    ])));
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera),
+              title: const Text("Kamera"),
+              onTap: () {
+                Navigator.pop(context);
+                prov.ambilFoto(true);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text("Galeri"),
+              onTap: () {
+                Navigator.pop(context);
+                prov.ambilFoto(false);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _lihatFoto(BuildContext context, String fileId) {
-    final webStrategy = kIsWeb ? WebHtmlElementStrategy.prefer : WebHtmlElementStrategy.never;
-    showDialog(context: context, builder: (_) => Dialog(child: Column(mainAxisSize: MainAxisSize.min, children: [
-      AppBar(title: const Text("Bukti Foto"), automaticallyImplyLeading: false, backgroundColor: Colors.indigo.shade900, foregroundColor: Colors.white, actions: [IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context))]),
-      Image.network(
-        _resolveFotoUrl(fileId),
-        loadingBuilder: (ctx, child, progress) => progress == null ? child : const Padding(padding: EdgeInsets.all(50), child: CircularProgressIndicator()),
-        webHtmlElementStrategy: webStrategy,
+    final webStrategy = kIsWeb
+        ? WebHtmlElementStrategy.prefer
+        : WebHtmlElementStrategy.never;
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              title: const Text("Bukti Foto"),
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.indigo.shade900,
+              foregroundColor: Colors.white,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            Image.network(
+              _resolveFotoUrl(fileId),
+              loadingBuilder: (ctx, child, progress) => progress == null
+                  ? child
+                  : const Padding(
+                      padding: EdgeInsets.all(50),
+                      child: CircularProgressIndicator(),
+                    ),
+              webHtmlElementStrategy: webStrategy,
+            ),
+          ],
+        ),
       ),
-    ])));
+    );
   }
 
   String _resolveFotoUrl(String rawFoto) {
@@ -460,7 +763,8 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
     if (lower.startsWith('http://') || lower.startsWith('https://')) {
       final uri = Uri.tryParse(trimmed);
       final host = uri?.host.toLowerCase();
-      final isDrive = host == 'drive.google.com' || host == 'lh3.googleusercontent.com';
+      final isDrive =
+          host == 'drive.google.com' || host == 'lh3.googleusercontent.com';
       if (isDrive) {
         final encoded = Uri.encodeComponent(trimmed);
         return '${ApiKonfig.proxyFoto}?src=$encoded';
@@ -478,8 +782,10 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
       return '${ApiKonfig.baseUrl}/$normalized';
     }
 
-    final hasImageExt = RegExp(r'\.(png|jpe?g|gif|webp)$', caseSensitive: false)
-        .hasMatch(normalized);
+    final hasImageExt = RegExp(
+      r'\.(png|jpe?g|gif|webp)$',
+      caseSensitive: false,
+    ).hasMatch(normalized);
     if (hasImageExt) {
       return '${ApiKonfig.baseUrl}/$normalized';
     }
@@ -488,30 +794,48 @@ class _HalamanInputPelanggaranState extends State<HalamanInputPelanggaran> {
     return '${ApiKonfig.proxyFoto}?src=$encoded';
   }
 
-  void _konfirmasiHapus(BuildContext context, InputPelanggaranProvider prov, String token, String id) {
-    showDialog(context: context, builder: (ctx) => AlertDialog(title: const Text("Hapus Data?"), content: const Text("Tindakan ini tidak dapat dibatalkan."), actions: [
-      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Batal")),
-      TextButton(onPressed: () async { 
-        final nav = Navigator.of(ctx); 
-        // 1. Jalankan fungsi hapus
-        final bool sukses = await prov.hapusPelanggaran(token, id);
-        
-        nav.pop(); // Tutup dialog
+  void _konfirmasiHapus(
+    BuildContext context,
+    InputPelanggaranProvider prov,
+    String token,
+    String id,
+  ) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Hapus Data?"),
+        content: const Text("Tindakan ini tidak dapat dibatalkan."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () async {
+              final nav = Navigator.of(ctx);
+              // 1. Jalankan fungsi hapus
+              final bool sukses = await prov.hapusPelanggaran(token, id);
 
-        if (sukses) {
-          // 2. REFRESH STATISTIK DI HALAMAN UTAMA
-          if (context.mounted) {
-            context.read<HalamanUtamaProvider>().ambilStatistik(token);
-          }
-          
-          // 3. Tampilkan notifikasi
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Data berhasil dihapus"))
-            );
-          }
-        }
-      }, child: const Text("Hapus", style: TextStyle(color: Colors.red))),
-    ]));
+              nav.pop(); // Tutup dialog
+
+              if (sukses) {
+                // 2. REFRESH STATISTIK DI HALAMAN UTAMA
+                if (context.mounted) {
+                  context.read<HalamanUtamaProvider>().ambilStatistik(token);
+                }
+
+                // 3. Tampilkan notifikasi
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Data berhasil dihapus")),
+                  );
+                }
+              }
+            },
+            child: const Text("Hapus", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 }

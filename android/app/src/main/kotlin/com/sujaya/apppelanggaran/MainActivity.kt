@@ -1,4 +1,4 @@
-package com.example.apppelanggaran
+package com.sujaya.apppelanggaran
 
 import io.flutter.embedding.android.FlutterActivity
 
